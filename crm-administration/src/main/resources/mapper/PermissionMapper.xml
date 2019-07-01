@@ -1,0 +1,526 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.crm.administration.mapper.PermissionMapper" >
+  <resultMap id="BaseResultMap" type="com.crm.administration.model.vo.PermissionVo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="parent_id" property="parentId" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="function_type" property="functionType" jdbcType="SMALLINT" />
+    <result column="url" property="url" jdbcType="VARCHAR" />
+    <result column="img" property="img" jdbcType="VARCHAR" />
+    <result column="seq_no" property="seqNo" jdbcType="INTEGER" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="if_dynamic_config" property="ifDynamicConfig" jdbcType="CHAR" />
+    <result column="table_name" property="tableName" jdbcType="VARCHAR" />
+    <result column="request_method" property="requestMethod" jdbcType="VARCHAR" />
+    <result column="if_need_auth" property="ifNeedAuth" jdbcType="CHAR" />
+    <result column="pc_menu_url" property="pcMenuUrl" jdbcType="VARCHAR" />
+    <result column="is_common" property="isCommon" jdbcType="CHAR" />
+    <result column="is_auth" property="isAuth" jdbcType="CHAR" />
+    <result column="created_by" property="createdBy" jdbcType="VARCHAR" />
+    <result column="created_dt" property="createdDt" jdbcType="TIMESTAMP" />
+    <result column="updated_by" property="updatedBy" jdbcType="VARCHAR" />
+    <result column="updated_dt" property="updatedDt" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <resultMap id="PermissionVo" type="com.crm.administration.model.vo.PermissionVo" extends="BaseResultMap">
+    <result column="parent_name" property="parentName" jdbcType="VARCHAR"/>
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id,parent_id,name,function_type,url,img,seq_no,
+    status,if_dynamic_config,table_name,request_method,if_need_auth,pc_menu_url,
+    is_common,is_auth,created_by,created_dt,updated_by,updated_dt
+  </sql>
+  <sql id="Base_Column_List_BY_ALIAS" >
+    ${alias}.id,${alias}.parent_id,${alias}.name,${alias}.function_type,${alias}.url,${alias}.img,${alias}.seq_no,
+    ${alias}.status,${alias}.if_dynamic_config,${alias}.table_name,${alias}.request_method,${alias}.if_need_auth,${alias}.pc_menu_url,
+    ${alias}.is_common,${alias}.is_auth,${alias}.created_by,${alias}.created_dt,${alias}.updated_by,${alias}.updated_dt
+  </sql>
+
+
+
+  <select id="permissionByUser" resultMap="PermissionVo" parameterType="com.crm.administration.model.pojo.PermissionSearchCondition">
+    select
+    <include refid="Base_Column_List_BY_ALIAS">
+      <property name="alias" value="t1"/>
+    </include>
+    from  permission as t1,role_permission as t2,role as t3,user_role as t4
+    where t1.id=t2.permission_id and t2.role_id=t3.id and t4.user_id=1
+    <where>
+      t1.id=t2.permission_id
+      and t2.role_id=t3.id
+      and t4.user_id=1
+      <if test="functionType != null" >
+        and function_type = #{functionType,jdbcType=SMALLINT}
+      </if>
+    </where>
+
+  </select>
+
+  <select id="list" resultMap="PermissionVo" parameterType="com.crm.administration.model.pojo.PermissionSearchCondition">
+  select
+    <include refid="Base_Column_List_BY_ALIAS">
+      <property name="alias" value="t1"/>
+    </include>,t2.name as parentName
+    from permission as t1
+    left outer join permission as t2 on t1.parent_id=t2.id
+    <where>
+      <if test="parentId != null" >
+        and t1.parent_id = #{parentId,jdbcType=BIGINT}
+      </if>
+      <if test="name != null" >
+        and t1.name like '%${name,jdbcType=VARCHAR}%'
+      </if>
+      <if test="functionType != null" >
+        and t1.function_type = #{functionType,jdbcType=SMALLINT}
+      </if>
+      <if test="status != null" >
+        and t1.status = #{status,jdbcType=VARCHAR}
+      </if>
+      <if test="requestMethod != null" >
+        and t1.request_method = #{requestMethod,jdbcType=VARCHAR}
+      </if>
+      <if test="ifNeedAuth != null" >
+        and t1.if_need_auth = #{ifNeedAuth,jdbcType=VARCHAR}
+      </if>
+        <choose>
+            <when test="startTime != null and endTime != null">
+                and created_dt between #{startTime,jdbcType=TIMESTAMP} and #{endTime,jdbcType=TIMESTAMP}
+            </when>
+            <otherwise>
+                <if test="startTime != null and endTime != null" >
+                    <if test="startTime != null" >
+                        and created_dt <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+                    </if>
+                    <if test="endTime != null" >
+                        and created_dt <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+                    </if>
+                </if>
+            </otherwise>
+        </choose>
+    </where>
+
+  </select>
+
+  <select id="hasPermission" resultMap="BaseResultMap">
+      select t3.* from user_role as t1,role_permission as t2,permission as t3
+      <where>
+          t1.uid=#{uid}
+          and t1.id=t2.role_id
+          and t2.permission_id=t3.id
+          <if test="permissionUrl != null and permissionUrl!=''">
+              t3.url=#{permissionUrl}
+          </if>
+          <if test="requestMethod != null and requestMethod!=''">
+              t3.request_method=#{requestMethod}
+          </if>
+          <if test="pcMenuUrl != null and pcMenuUrl!=''">
+              t3.pc_menu_url=#{pcMenuUrl}
+          </if>
+      </where>
+
+  </select>
+
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.crm.administration.model.PermissionCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from permission
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from permission
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from permission
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.crm.administration.model.PermissionCriteria" >
+    delete from permission
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.crm.administration.model.Permission" >
+    insert into permission (id, parent_id, name, 
+      function_type, url, img, 
+      seq_no, status, if_dynamic_config, 
+      table_name, request_method, if_need_auth, 
+      pc_menu_url, is_common, is_auth, 
+      created_by, created_dt, updated_by, 
+      updated_dt)
+    values (#{id,jdbcType=BIGINT}, #{parentId,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
+      #{functionType,jdbcType=SMALLINT}, #{url,jdbcType=VARCHAR}, #{img,jdbcType=VARCHAR}, 
+      #{seqNo,jdbcType=INTEGER}, #{status,jdbcType=CHAR}, #{ifDynamicConfig,jdbcType=CHAR}, 
+      #{tableName,jdbcType=VARCHAR}, #{requestMethod,jdbcType=VARCHAR}, #{ifNeedAuth,jdbcType=CHAR}, 
+      #{pcMenuUrl,jdbcType=VARCHAR}, #{isCommon,jdbcType=CHAR}, #{isAuth,jdbcType=CHAR}, 
+      #{createdBy,jdbcType=VARCHAR}, #{createdDt,jdbcType=TIMESTAMP}, #{updatedBy,jdbcType=VARCHAR}, 
+      #{updatedDt,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.crm.administration.model.Permission" >
+    insert into permission
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="parentId != null" >
+        parent_id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="functionType != null" >
+        function_type,
+      </if>
+      <if test="url != null" >
+        url,
+      </if>
+      <if test="img != null" >
+        img,
+      </if>
+      <if test="seqNo != null" >
+        seq_no,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="ifDynamicConfig != null" >
+        if_dynamic_config,
+      </if>
+      <if test="tableName != null" >
+        table_name,
+      </if>
+      <if test="requestMethod != null" >
+        request_method,
+      </if>
+      <if test="ifNeedAuth != null" >
+        if_need_auth,
+      </if>
+      <if test="pcMenuUrl != null" >
+        pc_menu_url,
+      </if>
+      <if test="isCommon != null" >
+        is_common,
+      </if>
+      <if test="isAuth != null" >
+        is_auth,
+      </if>
+      <if test="createdBy != null" >
+        created_by,
+      </if>
+      <if test="createdDt != null" >
+        created_dt,
+      </if>
+      <if test="updatedBy != null" >
+        updated_by,
+      </if>
+      <if test="updatedDt != null" >
+        updated_dt,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="parentId != null" >
+        #{parentId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="functionType != null" >
+        #{functionType,jdbcType=SMALLINT},
+      </if>
+      <if test="url != null" >
+        #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="img != null" >
+        #{img,jdbcType=VARCHAR},
+      </if>
+      <if test="seqNo != null" >
+        #{seqNo,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="ifDynamicConfig != null" >
+        #{ifDynamicConfig,jdbcType=CHAR},
+      </if>
+      <if test="tableName != null" >
+        #{tableName,jdbcType=VARCHAR},
+      </if>
+      <if test="requestMethod != null" >
+        #{requestMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="ifNeedAuth != null" >
+        #{ifNeedAuth,jdbcType=CHAR},
+      </if>
+      <if test="pcMenuUrl != null" >
+        #{pcMenuUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="isCommon != null" >
+        #{isCommon,jdbcType=CHAR},
+      </if>
+      <if test="isAuth != null" >
+        #{isAuth,jdbcType=CHAR},
+      </if>
+      <if test="createdBy != null" >
+        #{createdBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createdDt != null" >
+        #{createdDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedBy != null" >
+        #{updatedBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedDt != null" >
+        #{updatedDt,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.crm.administration.model.PermissionCriteria" resultType="java.lang.Integer" >
+    select count(*) from permission
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updatedByExampleSelective" parameterType="map" >
+    update permission
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.parentId != null" >
+        parent_id = #{record.parentId,jdbcType=BIGINT},
+      </if>
+      <if test="record.name != null" >
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.functionType != null" >
+        function_type = #{record.functionType,jdbcType=SMALLINT},
+      </if>
+      <if test="record.url != null" >
+        url = #{record.url,jdbcType=VARCHAR},
+      </if>
+      <if test="record.img != null" >
+        img = #{record.img,jdbcType=VARCHAR},
+      </if>
+      <if test="record.seqNo != null" >
+        seq_no = #{record.seqNo,jdbcType=INTEGER},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=CHAR},
+      </if>
+      <if test="record.ifDynamicConfig != null" >
+        if_dynamic_config = #{record.ifDynamicConfig,jdbcType=CHAR},
+      </if>
+      <if test="record.tableName != null" >
+        table_name = #{record.tableName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.requestMethod != null" >
+        request_method = #{record.requestMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ifNeedAuth != null" >
+        if_need_auth = #{record.ifNeedAuth,jdbcType=CHAR},
+      </if>
+      <if test="record.pcMenuUrl != null" >
+        pc_menu_url = #{record.pcMenuUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isCommon != null" >
+        is_common = #{record.isCommon,jdbcType=CHAR},
+      </if>
+      <if test="record.isAuth != null" >
+        is_auth = #{record.isAuth,jdbcType=CHAR},
+      </if>
+      <if test="record.createdBy != null" >
+        created_by = #{record.createdBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createdDt != null" >
+        created_dt = #{record.createdDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updatedBy != null" >
+        updated_by = #{record.updatedBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updatedDt != null" >
+        updated_dt = #{record.updatedDt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updatedByExample" parameterType="map" >
+    update permission
+    set id = #{record.id,jdbcType=BIGINT},
+      parent_id = #{record.parentId,jdbcType=BIGINT},
+      name = #{record.name,jdbcType=VARCHAR},
+      function_type = #{record.functionType,jdbcType=SMALLINT},
+      url = #{record.url,jdbcType=VARCHAR},
+      img = #{record.img,jdbcType=VARCHAR},
+      seq_no = #{record.seqNo,jdbcType=INTEGER},
+      status = #{record.status,jdbcType=CHAR},
+      if_dynamic_config = #{record.ifDynamicConfig,jdbcType=CHAR},
+      table_name = #{record.tableName,jdbcType=VARCHAR},
+      request_method = #{record.requestMethod,jdbcType=VARCHAR},
+      if_need_auth = #{record.ifNeedAuth,jdbcType=CHAR},
+      pc_menu_url = #{record.pcMenuUrl,jdbcType=VARCHAR},
+      is_common = #{record.isCommon,jdbcType=CHAR},
+      is_auth = #{record.isAuth,jdbcType=CHAR},
+      created_by = #{record.createdBy,jdbcType=VARCHAR},
+      created_dt = #{record.createdDt,jdbcType=TIMESTAMP},
+      updated_by = #{record.updatedBy,jdbcType=VARCHAR},
+      updated_dt = #{record.updatedDt,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updatedByPrimaryKeySelective" parameterType="com.crm.administration.model.Permission" >
+    update permission
+    <set >
+      <if test="parentId != null" >
+        parent_id = #{parentId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="functionType != null" >
+        function_type = #{functionType,jdbcType=SMALLINT},
+      </if>
+      <if test="url != null" >
+        url = #{url,jdbcType=VARCHAR},
+      </if>
+      <if test="img != null" >
+        img = #{img,jdbcType=VARCHAR},
+      </if>
+      <if test="seqNo != null" >
+        seq_no = #{seqNo,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="ifDynamicConfig != null" >
+        if_dynamic_config = #{ifDynamicConfig,jdbcType=CHAR},
+      </if>
+      <if test="tableName != null" >
+        table_name = #{tableName,jdbcType=VARCHAR},
+      </if>
+      <if test="requestMethod != null" >
+        request_method = #{requestMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="ifNeedAuth != null" >
+        if_need_auth = #{ifNeedAuth,jdbcType=CHAR},
+      </if>
+      <if test="pcMenuUrl != null" >
+        pc_menu_url = #{pcMenuUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="isCommon != null" >
+        is_common = #{isCommon,jdbcType=CHAR},
+      </if>
+      <if test="isAuth != null" >
+        is_auth = #{isAuth,jdbcType=CHAR},
+      </if>
+      <if test="createdBy != null" >
+        created_by = #{createdBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createdDt != null" >
+        created_dt = #{createdDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedBy != null" >
+        updated_by = #{updatedBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedDt != null" >
+        updated_dt = #{updatedDt,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updatedByPrimaryKey" parameterType="com.crm.administration.model.Permission" >
+    update permission
+    set parent_id = #{parentId,jdbcType=BIGINT},
+      name = #{name,jdbcType=VARCHAR},
+      function_type = #{functionType,jdbcType=SMALLINT},
+      url = #{url,jdbcType=VARCHAR},
+      img = #{img,jdbcType=VARCHAR},
+      seq_no = #{seqNo,jdbcType=INTEGER},
+      status = #{status,jdbcType=CHAR},
+      if_dynamic_config = #{ifDynamicConfig,jdbcType=CHAR},
+      table_name = #{tableName,jdbcType=VARCHAR},
+      request_method = #{requestMethod,jdbcType=VARCHAR},
+      if_need_auth = #{ifNeedAuth,jdbcType=CHAR},
+      pc_menu_url = #{pcMenuUrl,jdbcType=VARCHAR},
+      is_common = #{isCommon,jdbcType=CHAR},
+      is_auth = #{isAuth,jdbcType=CHAR},
+      created_by = #{createdBy,jdbcType=VARCHAR},
+      created_dt = #{createdDt,jdbcType=TIMESTAMP},
+      updated_by = #{updatedBy,jdbcType=VARCHAR},
+      updated_dt = #{updatedDt,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.crm.basic.mapper.work.DataDictionaryMapper">
+	<resultMap id="BaseResultMap" type="com.crm.vo.basic.DataDictionaryVo">
+		<id column="data_dictionary_seq_id" property="dataDictionarySeqId" jdbcType="INTEGER" />
+		<result column="property_config_seq_id" property="propertyConfigSeqId" jdbcType="INTEGER" />
+		<result column="data_name" property="dataName" jdbcType="VARCHAR" />
+		<result column="data_value" property="dataValue" jdbcType="VARCHAR" />
+		<result column="status" property="status" jdbcType="CHAR" />
+		<result column="sequence_num" property="sequenceNum" jdbcType="TINYINT" />
+	</resultMap>
+
+	<select id="querySelectList" resultMap="BaseResultMap"
+		parameterType="java.lang.String">
+		select * from data_dictionary
+		where property_config_seq_id =
+		#{propertyConfigSeqId,jdbcType=INTEGER}
+		order by sequence_num asc
+	</select>
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select * from data_dictionary
+		where
+		data_dictionary_seq_id = #{dataDictionarySeqId,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		data_dictionary
+		where data_dictionary_seq_id =
+		#{dataDictionarySeqId,jdbcType=INTEGER}
+	</delete>
+
+	<!--删除动态字段的下拉框 -->
+	<delete id="deleteBypropertyConfigSeqId" parameterType="java.lang.Integer">
+		delete
+		from data_dictionary
+		where property_config_seq_id =
+		#{propertyConfigSeqId,jdbcType=INTEGER}
+	</delete>
+
+	<insert id="insert" parameterType="com.crm.dto.basic.DataDictionaryDto">
+		insert into data_dictionary
+		(data_dictionary_seq_id, property_config_seq_id,
+		data_name, data_value,
+		status,
+		sequence_num)
+		values
+		(#{dataDictionarySeqId,jdbcType=INTEGER},
+		#{propertyConfigSeqId,jdbcType=INTEGER},
+		#{dataName,jdbcType=VARCHAR},
+		#{dataValue,jdbcType=VARCHAR}, #{status,jdbcType=CHAR},
+		)
+	</insert>
+	<insert id="insertSelective" parameterType="com.crm.dto.basic.DataDictionaryDto"
+		useGeneratedKeys="true" keyProperty="dataDictionarySeqId">
+		insert into data_dictionary
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="dataDictionarySeqId != null">
+				data_dictionary_seq_id,
+			</if>
+			<if test="propertyConfigSeqId != null">
+				property_config_seq_id,
+			</if>
+			<if test="dataName != null">
+				data_name,
+			</if>
+			<if test="dataValue != null">
+				data_value,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="sequenceNum != null">
+				sequence_num,
+			</if>
+			<if test="agencyId != null">
+				agency_id,
+				partition_no,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="dataDictionarySeqId != null">
+				#{dataDictionarySeqId,jdbcType=INTEGER},
+			</if>
+			<if test="propertyConfigSeqId != null">
+				#{propertyConfigSeqId,jdbcType=INTEGER},
+			</if>
+			<if test="dataName != null">
+				#{dataName,jdbcType=VARCHAR},
+			</if>
+			<if test="dataValue != null">
+				#{dataValue,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=CHAR},
+			</if>
+			<if test="sequenceNum != null">
+				#{sequenceNum,jdbcType=TINYINT},
+			</if>
+			<if test="agencyId != null">
+				#{agencyId,jdbcType=VARCHAR},
+				#{agencyId,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.crm.dto.basic.DataDictionaryDto">
+		update data_dictionary
+		<set>
+			<if test="propertyConfigSeqId != null">
+				property_config_seq_id =
+				#{propertyConfigSeqId,jdbcType=INTEGER},
+			</if>
+			<if test="dataName != null">
+				data_name = #{dataName,jdbcType=VARCHAR},
+			</if>
+			<if test="dataValue != null">
+				data_value = #{dataValue,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=CHAR},
+			</if>
+			<if test="sequenceNum != null">
+				sequence_num = #{sequenceNum,jdbcType=TINYINT},
+			</if>
+		</set>
+		where data_dictionary_seq_id = #{dataDictionarySeqId,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.crm.dto.basic.DataDictionaryDto">
+		update
+		data_dictionary
+		set property_config_seq_id =
+		#{propertyConfigSeqId,jdbcType=INTEGER},
+		data_name =
+		#{dataName,jdbcType=VARCHAR},
+		data_value =
+		#{dataValue,jdbcType=VARCHAR},
+		status = #{status,jdbcType=CHAR},
+		sequence_num = #{sequenceNum,jdbcType=TINYINT}
+		where
+		data_dictionary_seq_id = #{dataDictionarySeqId,jdbcType=INTEGER}
+	</update>
+</mapper>

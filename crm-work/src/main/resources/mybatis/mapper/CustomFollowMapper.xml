@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.crm.work.mapper.CustomFollowMapper" >
+  <resultMap id="BaseResultMap" type="com.crm.work.model.vo.CustomFollowVo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="cid" property="cid" jdbcType="BIGINT" />
+    <result column="customer_stage" property="customerStage" jdbcType="SMALLINT" />
+    <result column="follow_uid" property="followUid" jdbcType="BIGINT" />
+    <result column="follow_dt" property="followDt" jdbcType="TIMESTAMP" />
+    <result column="attachement_key" property="attachementKey" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="is_finish" property="isFinish" jdbcType="CHAR" />
+    <result column="help_uid" property="helpUid" jdbcType="BIGINT" />
+    <result column="next_id" property="nextId" jdbcType="BIGINT" />
+    <association property="nextFollow" columnPrefix="t2" resultMap="BaseResultMap"/>
+    <association property="customInfoVo" resultMap="CustomInfoVo"/>
+  </resultMap>
+  <resultMap id="CustomInfoVo" type="com.crm.work.model.vo.CustomInfoVo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+    <result column="gender" property="gender" jdbcType="CHAR" />
+    <result column="age" property="age" jdbcType="SMALLINT" />
+    <result column="source" property="source" jdbcType="SMALLINT" />
+    <result column="assortment" property="assortment" jdbcType="CHAR" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="reported_by" property="reportedBy" jdbcType="BIGINT" />
+    <result column="report_dt" property="reportDt" jdbcType="TIMESTAMP" />
+    <result column="owner" property="owner" jdbcType="BIGINT" />
+    <result column="position" property="position" jdbcType="SMALLINT" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="weixin" property="weixin" jdbcType="VARCHAR" />
+    <result column="intention" property="intention" jdbcType="SMALLINT" />
+    <result column="pid" property="pid" jdbcType="INTEGER" />
+    <result column="cid" property="cid" jdbcType="INTEGER" />
+    <result column="aid" property="aid" jdbcType="INTEGER" />
+    <result column="personnel_scale" property="personnelScale" jdbcType="SMALLINT" />
+    <result column="created_dt" property="createdDt" jdbcType="TIMESTAMP" />
+    <result column="created_by" property="createdBy" jdbcType="VARCHAR" />
+    <result column="updated_dt" property="updatedDt" jdbcType="TIMESTAMP" />
+    <result column="updated_by" property="updatedBy" jdbcType="VARCHAR" />
+    <result column="customer_stage" property="customerStage" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    ${alias}.id, ${alias}.cid, ${alias}.customer_stage, ${alias}.follow_uid, ${alias}.follow_dt,
+    ${alias}.attachement_key, ${alias}.remark, ${alias}.is_finish,
+    ${alias}.help_uid, ${alias}.next_id
+  </sql>
+  <sql id="CustomInfo_Column_List" >
+    ${alias}.id, ${alias}.customer_name, ${alias}.gender, ${alias}.age, ${alias}.source, ${alias}.assortment, ${alias}.status, ${alias}.remark, ${alias}.reported_by, ${alias}.
+    report_dt, ${alias}.owner, ${alias}.position, ${alias}.phone, ${alias}.weixin, ${alias}.intention, ${alias}.pid, ${alias}.cid, ${alias}.aid, ${alias}.personnel_scale, ${alias}.
+    created_dt, ${alias}.created_by, ${alias}.updated_dt, ${alias}.updated_by
+  </sql>
+  <select id="list" resultMap="BaseResultMap" resultType="com.crm.work.model.pojo.CustomFollowSearchCondition">
+    select
+    <include refid="Base_Column_List">
+      <property name="alias" value="t1"/>
+    </include>,
+    <include refid="Base_Column_List">
+      <property name="alias" value="t2"/>
+    </include>
+    <include refid="CustomInfo_Column_List">
+      <property name="alias" value="t3"/>
+    </include>
+    from custom_follow as t1 LEFT OUTER JOIN custom_follow as t2
+    on t1.next_id=t2.id,custom_info as t3
+    <where>
+      t1.cid=t3.id
+      and t1.follow_dt <![CDATA[<=]]> now()
+      <if test="followUserId != null and followUserId != '' ">
+        and t1.follow_uid=#{followUserId}
+      </if>
+      <if test="followStage != null and followStage != '' ">
+        and t1.customer_stage=#{followStage}
+      </if>
+      <if test="customId != null and customId != '' ">
+        and t1.cid=#{customId}
+      </if>
+      <choose>
+        <when test="startTime != null and endTime != null">
+          and t1,created_dt between #{startTime,jdbcType=TIMESTAMP} and #{endTime,jdbcType=TIMESTAMP}
+        </when>
+        <otherwise>
+          <if test="startTime != null and endTime != null" >
+            <if test="startTime != null" >
+              and t1,created_dt <![CDATA[>=]]> #{startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endTime != null" >
+              and t1,created_dt <![CDATA[<=]]> #{endTime,jdbcType=TIMESTAMP}
+            </if>
+          </if>
+        </otherwise>
+      </choose>
+    </where>
+
+    order by t1.follow_dt desc
+  </select>
+
+
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.crm.work.model.CustomFollowCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from custom_follow
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from custom_follow
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from custom_follow
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.crm.work.model.CustomFollowCriteria" >
+    delete from custom_follow
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.crm.work.model.CustomFollow" >
+    insert into custom_follow (id, cid, customer_stage, 
+      follow_uid, follow_dt, attachement_key, 
+      remark, is_finish, help_uid, 
+      next_id)
+    values (#{id,jdbcType=BIGINT}, #{cid,jdbcType=BIGINT}, #{customerStage,jdbcType=SMALLINT}, 
+      #{followUid,jdbcType=BIGINT}, #{followDt,jdbcType=TIMESTAMP}, #{attachementKey,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=VARCHAR}, #{isFinish,jdbcType=CHAR}, #{helpUid,jdbcType=BIGINT}, 
+      #{nextId,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.crm.work.model.CustomFollow" >
+    insert into custom_follow
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="cid != null" >
+        cid,
+      </if>
+      <if test="customerStage != null" >
+        customer_stage,
+      </if>
+      <if test="followUid != null" >
+        follow_uid,
+      </if>
+      <if test="followDt != null" >
+        follow_dt,
+      </if>
+      <if test="attachementKey != null" >
+        attachement_key,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="isFinish != null" >
+        is_finish,
+      </if>
+      <if test="helpUid != null" >
+        help_uid,
+      </if>
+      <if test="nextId != null" >
+        next_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="cid != null" >
+        #{cid,jdbcType=BIGINT},
+      </if>
+      <if test="customerStage != null" >
+        #{customerStage,jdbcType=SMALLINT},
+      </if>
+      <if test="followUid != null" >
+        #{followUid,jdbcType=BIGINT},
+      </if>
+      <if test="followDt != null" >
+        #{followDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="attachementKey != null" >
+        #{attachementKey,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="isFinish != null" >
+        #{isFinish,jdbcType=CHAR},
+      </if>
+      <if test="helpUid != null" >
+        #{helpUid,jdbcType=BIGINT},
+      </if>
+      <if test="nextId != null" >
+        #{nextId,jdbcType=BIGINT},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.crm.work.model.CustomFollowCriteria" resultType="java.lang.Integer" >
+    select count(*) from custom_follow
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update custom_follow
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.cid != null" >
+        cid = #{record.cid,jdbcType=BIGINT},
+      </if>
+      <if test="record.customerStage != null" >
+        customer_stage = #{record.customerStage,jdbcType=SMALLINT},
+      </if>
+      <if test="record.followUid != null" >
+        follow_uid = #{record.followUid,jdbcType=BIGINT},
+      </if>
+      <if test="record.followDt != null" >
+        follow_dt = #{record.followDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.attachementKey != null" >
+        attachement_key = #{record.attachementKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remark != null" >
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isFinish != null" >
+        is_finish = #{record.isFinish,jdbcType=CHAR},
+      </if>
+      <if test="record.helpUid != null" >
+        help_uid = #{record.helpUid,jdbcType=BIGINT},
+      </if>
+      <if test="record.nextId != null" >
+        next_id = #{record.nextId,jdbcType=BIGINT},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update custom_follow
+    set id = #{record.id,jdbcType=BIGINT},
+      cid = #{record.cid,jdbcType=BIGINT},
+      customer_stage = #{record.customerStage,jdbcType=SMALLINT},
+      follow_uid = #{record.followUid,jdbcType=BIGINT},
+      follow_dt = #{record.followDt,jdbcType=TIMESTAMP},
+      attachement_key = #{record.attachementKey,jdbcType=VARCHAR},
+      remark = #{record.remark,jdbcType=VARCHAR},
+      is_finish = #{record.isFinish,jdbcType=CHAR},
+      help_uid = #{record.helpUid,jdbcType=BIGINT},
+      next_id = #{record.nextId,jdbcType=BIGINT}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.crm.work.model.CustomFollow" >
+    update custom_follow
+    <set >
+      <if test="cid != null" >
+        cid = #{cid,jdbcType=BIGINT},
+      </if>
+      <if test="customerStage != null" >
+        customer_stage = #{customerStage,jdbcType=SMALLINT},
+      </if>
+      <if test="followUid != null" >
+        follow_uid = #{followUid,jdbcType=BIGINT},
+      </if>
+      <if test="followDt != null" >
+        follow_dt = #{followDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="attachementKey != null" >
+        attachement_key = #{attachementKey,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="isFinish != null" >
+        is_finish = #{isFinish,jdbcType=CHAR},
+      </if>
+      <if test="helpUid != null" >
+        help_uid = #{helpUid,jdbcType=BIGINT},
+      </if>
+      <if test="nextId != null" >
+        next_id = #{nextId,jdbcType=BIGINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.crm.work.model.CustomFollow" >
+    update custom_follow
+    set cid = #{cid,jdbcType=BIGINT},
+      customer_stage = #{customerStage,jdbcType=SMALLINT},
+      follow_uid = #{followUid,jdbcType=BIGINT},
+      follow_dt = #{followDt,jdbcType=TIMESTAMP},
+      attachement_key = #{attachementKey,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      is_finish = #{isFinish,jdbcType=CHAR},
+      help_uid = #{helpUid,jdbcType=BIGINT},
+      next_id = #{nextId,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

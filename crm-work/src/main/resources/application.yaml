@@ -1,0 +1,87 @@
+snowFlake:
+  workInfo:
+    datacenterId: 4
+    machineId: 4
+eureka:
+  client:
+#    healthcheck:
+#      enabled: true #这个属性只能放在application.yml文件中，放在其他.yml中会出问题
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+spring:
+  session:
+    store-type: redis
+  application:
+    name: crm-work
+  http:
+    encoding:
+      force: true
+      enabled: true
+      charset: UTF-8
+    multipart:
+      max-file-size: 1Mb      # Max file size，默认1M
+      max-request-size: 2Mb   # Max request size，默认10M
+  profiles:
+    active:
+    - dev
+    - redis-dev
+#    - test
+#    - redis-test
+#    - pro
+#    - redis-pro
+mybatis:
+  type-aliases-package: com.crm.work.model
+  mapperLocations: classpath*:mybatis/mapper/**/*Mapper.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+mapper:
+ not-empty: false
+ identity: POSTGRESQL
+pagehelper:
+  helperDialect: postgresql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+besedir: work
+
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enable: true
+        isolation:
+          thread:
+            timeoutInMilliseconds: 30000
+
+feign.hystrix.enabled: true
+ribbon:
+  ConnectTimeout: 3000
+  ReadTimeout: 30000
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 2
+  OkToRetryOnAllOperations: false
+
+server:
+  tomcat:
+    uri-encoding: UTF-8
+
+#验证码配置参数
+verify:
+  pic:
+    height: 30
+    width: 100
+    letter-qty: 4
+register:
+  text: true
+
+
+aliyun:
+  wxPrefix: t
+  wyPrefix: t
+  bucketName: t
+  accessKeyId: t
+  secretAccessKey: t
+  endpoint: t

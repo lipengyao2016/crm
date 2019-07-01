@@ -1,0 +1,33 @@
+spring:
+  redis:
+    database: 0
+    host: 127.0.0.1
+    password:  
+    port: 6379  
+    pool: 
+      max-idle: 32 
+      min-idle: 2 
+      max-active: 32      
+      max-wait: 5000    
+#  rabbitmq:
+#    host: 127.0.0.1
+#    port: 5672
+#    username: yanrui
+#    password: pass@2018
+#    publisher-confirms: true
+#    publisher-returns: true
+#    requested-heartbeat: 30
+#    connection-timeout: 5000
+#    template:
+#      mandatory: true
+#      retry:
+#        max-attempts: 3
+#        enabled: true
+#        initial-interval: 5000
+#    listener:
+#      simple:
+#        retry:
+#          max-attempts: 3  #最大重试次数
+#          enabled: true    #是否开启消费者重试（为false时关闭消费者重试，这时消费端代码异常会一直重复收到消息）
+#          initial-interval: 5000 #重试间隔时间（单位毫秒）
+#        default-requeue-rejected: true   #重试次数超过上面的设置之后是否丢弃（false不丢弃时需要写相应代码将该消息加入死信队列）

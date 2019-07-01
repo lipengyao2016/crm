@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.crm.assistant.mapper.AttachmentMapper">
+	<resultMap id="BaseResultMap" type="com.crm.vo.AttachmentVo">
+		<id column="attachment_key" jdbcType="VARCHAR" property="attachmentKey" />
+		<id column="seq_no" jdbcType="INTEGER" property="seqNo" />
+		<result column="file_name" jdbcType="VARCHAR" property="fileName" />
+		<result column="file_url" jdbcType="VARCHAR" property="fileUrl" />
+		<result column="file_size" jdbcType="VARCHAR" property="fileSize" />
+		<result column="duration" jdbcType="VARCHAR" property="duration" />
+		<result column="thumb" jdbcType="VARCHAR" property="thumb" />
+		<result column="create_dt" jdbcType="TIMESTAMP" property="createDt" />
+		<result column="file_title" jdbcType="VARCHAR" property="fileTitle" />
+	</resultMap>
+	<resultMap extends="BaseResultMap" id="ResultMapWithBLOBs"
+		type="com.crm.vo.AttachmentVo">
+		<result column="remark" jdbcType="LONGVARCHAR" property="remark" />
+	</resultMap>
+	<sql id="Base_Column_List">
+		attachment_key, seq_no, file_name, file_url, file_size,
+		duration, thumb, create_dt,
+		file_title
+	</sql>
+	<sql id="Blob_Column_List">
+		remark
+	</sql>
+
+	<select id="getVerstion" resultType="com.crm.assistant.model.attachment.VersionInfo">
+		select id,`version`,`desc`,is_hint_update as isHintUpdate,is_compulsory_renewal as isSompulsoryRenewal
+		from version_info limit 1
+	</select>
+
+	<select id="selectByPrimaryId" resultMap="ResultMapWithBLOBs"
+		parameterType="String">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from attachment
+		where attachment_key = #{id,jdbcType=VARCHAR}
+	</select>
+	<delete id="deleteByAttachmentKey" parameterType="String">
+		delete from
+		attachment
+		where attachment_key = #{attachmentKey,jdbcType=VARCHAR}
+	</delete>
+
+
+
+
+	<select id="selectByPrimaryKey"
+		parameterType="com.crm.assistant.model.attachment.AttachmentKeyVo"
+		resultMap="ResultMapWithBLOBs">
+		select
+		<include refid="Base_Column_List" />
+		,
+		<include refid="Blob_Column_List" />
+		from attachment
+		where attachment_key =
+		#{attachmentKey,jdbcType=VARCHAR}
+		and seq_no =
+		#{seqNo,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey"
+		parameterType="com.crm.assistant.model.attachment.AttachmentKeyVo">
+		delete from
+		attachment
+		where attachment_key =
+		#{attachmentKey,jdbcType=VARCHAR}
+		and
+		seq_no = #{seqNo,jdbcType=INTEGER}
+	</delete>
+	<insert id="insert" parameterType="com.crm.vo.AttachmentVo">
+		insert into attachment
+		(attachment_key, seq_no, file_name,
+		file_url, file_size, duration,
+		thumb, create_dt, file_title,
+		remark,partition_no)
+		values
+		(#{attachmentKey,jdbcType=VARCHAR}, #{seqNo,jdbcType=INTEGER},
+		#{fileName,jdbcType=VARCHAR},
+		#{fileUrl,jdbcType=VARCHAR},
+		#{fileSize,jdbcType=VARCHAR}, #{duration,jdbcType=VARCHAR},
+		#{thumb,jdbcType=VARCHAR}, now(),
+		#{fileTitle,jdbcType=VARCHAR},
+		#{remark,jdbcType=LONGVARCHAR},#{partitionNo})
+	</insert>
+	<insert id="insertSelective" parameterType="com.crm.vo.AttachmentVo">
+		insert into attachment
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="attachmentKey != null">
+				attachment_key,
+			</if>
+			<if test="seqNo != null">
+				seq_no,
+			</if>
+			<if test="fileName != null">
+				file_name,
+			</if>
+			<if test="fileUrl != null">
+				file_url,
+			</if>
+			<if test="fileSize != null">
+				file_size,
+			</if>
+			<if test="duration != null">
+				duration,
+			</if>
+			<if test="thumb != null">
+				thumb,
+			</if>
+			<if test="createDt != null">
+				create_dt,
+			</if>
+			<if test="fileTitle != null">
+				file_title,
+			</if>
+			<if test="remark != null">
+				remark,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="attachmentKey != null">
+				#{attachmentKey,jdbcType=VARCHAR},
+			</if>
+			<if test="seqNo != null">
+				#{seqNo,jdbcType=INTEGER},
+			</if>
+			<if test="fileName != null">
+				#{fileName,jdbcType=VARCHAR},
+			</if>
+			<if test="fileUrl != null">
+				#{fileUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="fileSize != null">
+				#{fileSize,jdbcType=VARCHAR},
+			</if>
+			<if test="duration != null">
+				#{duration,jdbcType=VARCHAR},
+			</if>
+			<if test="thumb != null">
+				#{thumb,jdbcType=VARCHAR},
+			</if>
+			<if test="createDt != null">
+				#{createDt,jdbcType=TIMESTAMP},
+			</if>
+			<if test="fileTitle != null">
+				#{fileTitle,jdbcType=VARCHAR},
+			</if>
+			<if test="remark != null">
+				#{remark,jdbcType=LONGVARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.crm.vo.AttachmentVo">
+		update attachment
+		<set>
+			<if test="fileName != null">
+				file_name = #{fileName,jdbcType=VARCHAR},
+			</if>
+			<if test="fileUrl != null">
+				file_url = #{fileUrl,jdbcType=VARCHAR},
+			</if>
+			<if test="fileSize != null">
+				file_size = #{fileSize,jdbcType=VARCHAR},
+			</if>
+			<if test="duration != null">
+				duration = #{duration,jdbcType=VARCHAR},
+			</if>
+			<if test="thumb != null">
+				thumb = #{thumb,jdbcType=VARCHAR},
+			</if>
+			<if test="createDt != null">
+				create_dt = #{createDt,jdbcType=TIMESTAMP},
+			</if>
+			<if test="fileTitle != null">
+				file_title = #{fileTitle,jdbcType=VARCHAR},
+			</if>
+			<if test="remark != null">
+				remark = #{remark,jdbcType=LONGVARCHAR},
+			</if>
+		</set>
+		where attachment_key = #{attachmentKey,jdbcType=VARCHAR}
+		and seq_no =
+		#{seqNo,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKeyWithBLOBs" parameterType="com.crm.vo.AttachmentVo">
+		update
+		attachment
+		set file_name = #{fileName,jdbcType=VARCHAR},
+		file_url =
+		#{fileUrl,jdbcType=VARCHAR},
+		file_size = #{fileSize,jdbcType=VARCHAR},
+		duration = #{duration,jdbcType=VARCHAR},
+		thumb =
+		#{thumb,jdbcType=VARCHAR},
+		create_dt = #{createDt,jdbcType=TIMESTAMP},
+		file_title = #{fileTitle,jdbcType=VARCHAR},
+		remark =
+		#{remark,jdbcType=LONGVARCHAR}
+		where attachment_key =
+		#{attachmentKey,jdbcType=VARCHAR}
+		and seq_no =
+		#{seqNo,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.crm.vo.AttachmentVo">
+		update attachment
+		set file_name = #{fileName,jdbcType=VARCHAR},
+		file_url =
+		#{fileUrl,jdbcType=VARCHAR},
+		file_size = #{fileSize,jdbcType=VARCHAR},
+		duration = #{duration,jdbcType=VARCHAR},
+		thumb =
+		#{thumb,jdbcType=VARCHAR},
+		create_dt = #{createDt,jdbcType=TIMESTAMP},
+		file_title = #{fileTitle,jdbcType=VARCHAR}
+		where attachment_key =
+		#{attachmentKey,jdbcType=VARCHAR}
+		and seq_no =
+		#{seqNo,jdbcType=INTEGER}
+	</update>
+</mapper>

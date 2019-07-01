@@ -1,0 +1,646 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.crm.basic.mapper.work.PropertyConfigMapper">
+	<resultMap id="BaseResultMap" type="com.crm.vo.basic.PropertyConfigVo">
+		<id column="property_config_seq_id" property="propertyConfigSeqId"
+			jdbcType="INTEGER" />
+		<result column="permission_type" property="permissionType"
+			jdbcType="VARCHAR" />
+		<result column="permission_id" property="permissionId"
+			jdbcType="VARCHAR" />
+		<result column="property_name" property="propertyName"
+			jdbcType="VARCHAR" />
+		<result column="property_desc" property="propertyDesc"
+			jdbcType="VARCHAR" />
+		<result column="property_type" property="propertyType"
+			jdbcType="VARCHAR" />
+		<result column="property_unit" property="propertyUnit"
+			jdbcType="VARCHAR" />
+		<result column="sequence_num" property="sequenceNum" jdbcType="INTEGER" />
+		<result column="point_out" property="pointOut" jdbcType="VARCHAR" />
+		<result column="text_min_length" property="textMinLength"
+			jdbcType="INTEGER" />
+		<result column="text_max_length" property="textMaxLength"
+			jdbcType="INTEGER" />
+		<result column="text_row" property="textRow" jdbcType="INTEGER" />
+		<result column="input_col" property="inputCol" jdbcType="INTEGER" />
+		<result column="if_forbidden" property="ifForbidden" jdbcType="CHAR" />
+		<result column="is_necessary" property="isNecessary" jdbcType="CHAR" />
+		<result column="status" property="status" jdbcType="CHAR" />
+	</resultMap>
+	<resultMap id="findPropertyConfigByIds" type="com.crm.vo.basic.PropertyConfigVo"
+		extends="BaseResultMap">
+		<collection property="dataDictionaryList" ofType="com.crm.vo.basic.DataDictionaryVo">
+			<id column="data_dictionary_seq_id" property="dataDictionarySeqId"
+				jdbcType="INTEGER" />
+			<result column="property_config_seq_id" property="propertyConfigSeqId"
+				jdbcType="INTEGER" />
+			<result column="data_name" property="dataName" jdbcType="VARCHAR" />
+			<result column="data_value" property="dataValue" jdbcType="VARCHAR" />
+			<result column="status" property="status" jdbcType="CHAR" />
+			<result column="sequence_num" property="sequenceNum" jdbcType="INTEGER" />
+			<result column="isSelect" property="isSelect" jdbcType="VARCHAR" />
+		</collection>
+	</resultMap>
+	<!-- 根据分类获取其动态字段和所有基础数据2018-6-29 20:27:52可能出现data_dictionary AS t3外关联入主条件 -->
+	<select id="findPropertyConfigByClassIfy" parameterType="String"
+		resultMap="findPropertyConfigByIds">
+		SELECT
+		*
+		FROM
+		property_config as t2,(
+		SELECT
+		t1.property_config_seq_id
+		FROM
+		product_classify_config AS t1
+		WHERE
+		FN_getTopProductClassifyId
+		(#{productClassifyId}) = t1.seq_id
+		<if test="isShow != null and isShow != '' ">
+			and t1.is_show=#{isShow}
+		</if>
+		) AS t4
+		left outer join data_dictionary as t3 on
+		t4.property_config_seq_id=t3.property_config_seq_id
+		WHERE
+		t2.property_config_seq_id=t4.property_config_seq_id
+		<if test="ifForbidden !=null and ifForbidden!=''">
+			and t2.if_forbidden=#{ifForbidden}
+		</if>
+		AND
+		IF(t2.property_type in('singleselect','multiplyselect'),IF ((
+		SELECT
+		count(1)
+		FROM
+		data_dictionary AS t3
+		WHERE
+		t3.property_config_seq_id
+		= t2.property_config_seq_id and
+		t3.agency_id=#{agencyId}
+		)>0,
+		t3.agency_id = #{agencyId},
+		t3.agency_id =
+		''
+		),1=1)
+		order by
+		t2.sequence_num asc
+	</select>
+	<select id="findSystemPropertyConfigList" resultMap="findPropertyConfigByIds">
+		SELECT
+			*
+		FROM
+			property_config as t2
+		left outer join data_dictionary AS t3
+		on t3.property_config_seq_id = t2.property_config_seq_id
+			and (t3.agency_id='' or t3.agency_id is null) 
+			and (t3.partition_no='' or t3.partition_no is null)
+		WHERE
+			(t2.partition_no='' or t2.partition_no is null)
+		order by
+			t2.sequence_num asc
+	</select>
+	<!-- 根据权限id组合权限类型获取其动态字段和所有基础数据 -->
+	<select id="findPropertyConfigByPermissionIdArray"
+		parameterType="String" resultMap="findPropertyConfigByIds">
+		SELECT
+		*
+		FROM
+		property_config as t2
+		left outer join data_dictionary as t3
+		on
+		t2.property_config_seq_id=t3.property_config_seq_id
+		AND
+		IF ((
+		SELECT
+		count(1)
+		FROM
+		data_dictionary AS t3
+		WHERE
+		t3.property_config_seq_id =
+		t2.property_config_seq_id and
+		t3.agency_id=#{agencyId}
+		)>0,
+		t3.agency_id
+		= #{agencyId},
+		t3.agency_id =
+		''
+		)
+		WHERE 1=1
+		<if test="permissionType !=null and permissionType != ''">
+			and t2.permission_type=#{permissionType}
+		</if>
+		<if test="permissionIdArray !=null and permissionIdArray !=''">
+			and t2.permission_id=(${permissionIdArray})
+		</if>
+		<if test="ifForbidden !=null and ifForbidden !=''">
+			and t2.if_forbidden=#{ifForbidden}
+		</if>
+
+		ORDER BY t2.sequence_num asc
+	</select>
+	<!--查询所有日志模板已配置的固定字段 -->
+	<select id="queryWorkLogTemplatePropertyConfigList1" resultMap="BaseResultMap">
+		select a.* from property_config a
+		inner join
+		property_config_work_template_related b on
+		a.property_config_seq_id=b.property_config_seq_id
+		where
+		a.permission_type='worklog'
+		and a.if_forbidden='Y'
+		and
+		b.permission_id=#{workLogTemplateId}
+		order by a.sequence_num
+		asc
+	</select>
+
+	<!--查询所有日志模板已配置的自定义字段 -->
+	<select id="queryWorkLogTemplatePropertyConfigList2" resultMap="BaseResultMap">
+		select a.* from property_config a
+		where a.permission_type='worklog'
+		and
+		a.if_forbidden='N'
+		and a.permission_id=#{workLogTemplateId}
+		order by
+		a.sequence_num
+		asc
+	</select>
+
+	<!--查询所有日志模板固定字段 -->
+	<select id="queryWorkLogTemplatePropertyConfigList3" resultMap="BaseResultMap">
+		select a.*
+		from property_config a
+		where a.permission_type='worklog'
+		and
+		a.if_forbidden='Y'
+		order by a.sequence_num asc
+	</select>
+
+	<!-- 根据字段配置id组、字段输入类型、查出字段配置数组 -->
+	<select id="findPropertyConfigByIds" resultMap="findPropertyConfigByIds"
+		parameterType="java.lang.String">
+		select t1.*,t2.*
+		from
+		property_config as t1,data_dictionary as t2
+		where
+		t1.property_config_seq_id=t2.property_config_seq_id
+		<if
+			test="propertyConfigSeqIdArray != '' and propertyConfigSeqIdArray != null">
+			and t1.property_config_seq_id in(${propertyConfigSeqIdArray})
+		</if>
+		<if test="propertyType != '' and propertyType != null">
+			and t1.property_type in(${propertyType})
+		</if>
+		<if test="agencyId !=null and agencyId !=''">
+			AND IF ((
+			SELECT
+			count(1)
+			FROM
+			data_dictionary AS t3
+			WHERE
+			t3.property_config_seq_id
+			= t2.property_config_seq_id and
+			t3.agency_id=#{agencyId}
+			)>0,
+			t2.agency_id =#{agencyId},
+			t2.agency_id =
+			''
+			)
+		</if>
+	</select>
+	<!-- 根据动态配置属性id删除下拉列表数据 -->
+	<delete id="deleteDataDictionaryByPropertyId" parameterType="Integer">
+		delete from data_dictionary where
+		property_config_seq_id=#{propertyConfigSeqId}
+	</delete>
+	<!-- 判断字段名称是否重复 -->
+	<select id="propertyNameExists" parameterType="HashMap"
+		resultType="HashMap">
+		SELECT
+		count(1) as count,property_config_seq_id as propertyConfigSeqId
+		FROM
+		property_config
+		WHERE 1=1
+		<if test="propertyName != null and propertyName!=''">
+			AND property_name = #{propertyName}
+		</if>
+	</select>
+
+	<select id="selectByPrimaryKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Integer">
+		select a.*
+		from property_config a
+		where
+		a.property_config_seq_id =
+		#{propertyConfigSeqId,jdbcType=INTEGER}
+	</select>
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from
+		property_config
+		where property_config_seq_id =
+		#{propertyConfigSeqId,jdbcType=INTEGER}
+	</delete>
+
+	<!--删除日志模板的自定义字段 -->
+	<delete id="deleteByWorkLogTemplateId">
+		delete from
+		property_config
+		where permission_id
+		='${permissionId}' and
+		permission_type='worklog' and if_forbidden='N'
+		<if test="partitionNo != null and partitionNo != ''">
+		and partition_no=#{partitionNo}
+		</if>
+	</delete>
+
+	<!--删除某个模板的自定义字段 -->
+	<delete id="deleteByPermission">
+		delete from property_config where
+		permission_type=#{permissionType} and permission_id =#{permissionId}
+		and partition_no=#{partitionNo} and if_forbidden='N'
+	</delete>
+
+	<!-- 查询某个模块重复的自定义字段 -->
+	<select id="queryExsitByPermission" resultMap="BaseResultMap">
+		SELECT *
+		FROM
+		property_config
+		WHERE
+		permission_type=#{permissionType}
+		and partition_no=#{partitionNo}
+		and if_forbidden='N'
+		and property_name
+		in (${propertyNames})
+	</select>
+
+	<select id="listSystemProperty" parameterType="string"
+		resultMap="findPropertyConfigByIds">
+		SELECT
+		t1.property_config_seq_id,
+		t1.permission_type,
+		t1.permission_id,
+		t1.property_name,
+		t1.property_desc,
+		t1.property_type,
+		t1.property_unit,
+		t1.point_out,
+		t1.text_min_length,
+		t1.text_max_length,
+		t1.text_row,
+		t1.input_col,
+		t1.if_forbidden,
+		t1.is_necessary,
+		if(t1.is_necessary='Y','是','否') as isNecessaryName,
+		t2.data_dictionary_seq_id,
+		t2.data_name,
+		t2.data_value,
+		t2.status,
+		t2.agency_id,
+		t2.sequence_num,(select IF(count(1)>0,'Y','N') from
+		product_attribute as t3 where
+		t3.property_config_seq_id=t1.property_config_seq_id and
+		t3.attr_value=t2.data_value) as isSelect
+		FROM
+		property_config AS t1,
+		data_dictionary
+		AS t2
+		WHERE
+		t1.property_config_seq_id in(select * from
+		(select
+		property_config_seq_id from property_config pc where
+		permission_id
+		= 0
+		<if test="propertyType !=null and propertyType != '' ">
+			and pc.property_type in (${propertyType})
+		</if>
+		limit ${pageStart},${pageEnd}) as tempT1)
+		AND t1.property_config_seq_id
+		= t2.property_config_seq_id
+		AND t1.permission_id = 0
+		AND
+		<if test="agencyId !=null and agencyId != '' ">
+			IF ((
+			SELECT
+			count(1)
+			FROM
+			data_dictionary AS t3
+			WHERE
+			t3.property_config_seq_id =
+			t1.property_config_seq_id and t3.agency_id=#{agencyId}
+			)>0,
+			t2.agency_id = #{agencyId},
+			(t2.agency_id = '' or t2.agency_id is null)
+			)
+		</if>
+		<if test="agencyId == null or agencyId == '' ">
+			(t2.agency_id = '' or t2.agency_id is null)
+			AND
+			(t1.partition_no = '' or t1.partition_no is null)
+		</if>
+		and t1.property_type
+		in('singleselect','multiplyselect')
+		ORDER BY
+		t1.sequence_num,
+		t2.sequence_num
+	</select>
+	<select id="listSystemPropertyCount" resultType="int"
+		parameterType="string">
+		select count(1) from property_config where permission_id=0
+		<if test="propertyType !=null and propertyType != '' ">
+			and property_type in (${propertyType})
+		</if>
+	</select>
+	<select id="getSystemProperty" parameterType="string"
+		resultMap="findPropertyConfigByIds">
+		select
+		t1.property_config_seq_id,
+		t1.permission_type,
+		t1.permission_id,
+		t1.property_name,
+		t1.property_desc,
+		t1.property_type,
+		t1.property_unit,
+		t1.point_out,
+		t1.text_min_length,
+		t1.text_max_length,
+		t1.text_row,
+		t1.input_col,
+		t1.if_forbidden,
+		t1.is_necessary,
+		if(t1.is_necessary='Y','是','否') as
+		isNecessaryName,
+		t2.data_dictionary_seq_id,
+		t2.data_name,
+		t2.data_value,
+		t2.status,
+		t2.agency_id,
+		t2.sequence_num,(select IF(count(1)>0,'Y','N') from
+		product_attribute as t3 where
+		t3.property_config_seq_id=t1.property_config_seq_id
+		and
+		t3.attr_value=t2.data_value) as isSelect
+		FROM
+		property_config AS t1,
+		data_dictionary
+		AS t2
+		WHERE
+		IF ((
+		SELECT
+		count(1)
+		FROM
+		data_dictionary AS t3
+		WHERE
+		t3.property_config_seq_id = t1.property_config_seq_id
+		and
+		t3.agency_id=#{agencyId}
+		)>0,
+		t2.agency_id = #{agencyId},
+		t2.agency_id =
+		''
+		)
+		AND t1.property_config_seq_id = t2.property_config_seq_id
+		AND
+		t1.property_config_seq_id=#{id}
+	</select>
+	<delete id="deleteDataDictionaryByagencyId">
+		delete from data_dictionary where
+		agency_id=#{agencyId} and
+		property_config_seq_id=#{properydSeqId}
+	</delete>
+
+	<!-- 校检自定义字段组是否重复 -->
+	<select id="queryPropertyNamesIsExists" resultType="string">
+		SELECT
+		GROUP_CONCAT(property_name) as property_name
+		FROM
+		property_config
+		WHERE
+		property_name IN (
+		${propertyNames}
+		)
+	</select>
+
+
+
+	<insert id="insert" parameterType="com.crm.dto.basic.PropertyConfigDto"
+		useGeneratedKeys="true" keyProperty="propertyConfigSeqId">
+		insert into property_config
+		(property_config_seq_id,
+		permission_type,
+		permission_id,
+		property_name,
+		property_desc,
+		property_type,
+		property_unit,
+		text_min_length,
+		text_max_length,
+		text_row, input_col, if_forbidden,
+		is_necessary,
+		status, sequence_num,
+		point_out)
+		values
+		(#{propertyConfigSeqId,jdbcType=INTEGER},
+		#{permissionType,jdbcType=VARCHAR},
+		#{permissionId,jdbcType=VARCHAR},
+		#{propertyName,jdbcType=VARCHAR},
+		#{propertyDesc,jdbcType=VARCHAR},
+		#{propertyType,jdbcType=VARCHAR},
+		#{propertyUnit,jdbcType=VARCHAR},
+		#{textMinLength,jdbcType=TINYINT},
+		#{textMaxLength,jdbcType=SMALLINT},
+		#{textRow,jdbcType=TINYINT},
+		#{inputCol,jdbcType=TINYINT},
+		#{ifForbidden,jdbcType=CHAR},
+		#{isNecessary,jdbcType=CHAR},
+		#{status,jdbcType=CHAR},
+		#{sequenceNum,jdbcType=TINYINT},
+		#{pointOut,jdbcType=VARCHAR})
+	</insert>
+	<insert id="insertSelective" parameterType="com.crm.dto.basic.PropertyConfigDto"
+		useGeneratedKeys="true" keyProperty="propertyConfigSeqId">
+		insert into property_config
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="propertyConfigSeqId != null">
+				property_config_seq_id,
+			</if>
+			<if test="permissionType != null">
+				permission_type,
+			</if>
+			<if test="permissionId != null">
+				permission_id,
+			</if>
+			<if test="propertyName != null">
+				property_name,
+			</if>
+			<if test="propertyDesc != null">
+				property_desc,
+			</if>
+			<if test="propertyType != null">
+				property_type,
+			</if>
+			<if test="propertyUnit != null">
+				property_unit,
+			</if>
+			<if test="textMinLength != null">
+				text_min_length,
+			</if>
+			<if test="textMaxLength != null">
+				text_max_length,
+			</if>
+			<if test="textRow != null">
+				text_row,
+			</if>
+			<if test="inputCol != null">
+				input_col,
+			</if>
+			<if test="ifForbidden != null">
+				if_forbidden,
+			</if>
+			<if test="isNecessary != null">
+				is_necessary,
+			</if>
+			<if test="status != null">
+				status,
+			</if>
+			<if test="sequenceNum != null">
+				sequence_num,
+			</if>
+			<if test="pointOut != null">
+				point_out,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="propertyConfigSeqId != null">
+				#{propertyConfigSeqId,jdbcType=INTEGER},
+			</if>
+			<if test="permissionType != null">
+				#{permissionType,jdbcType=VARCHAR},
+			</if>
+			<if test="permissionId != null">
+				#{permissionId,jdbcType=VARCHAR},
+			</if>
+			<if test="propertyName != null">
+				#{propertyName,jdbcType=VARCHAR},
+			</if>
+			<if test="propertyDesc != null">
+				#{propertyDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="propertyType != null">
+				#{propertyType,jdbcType=VARCHAR},
+			</if>
+			<if test="propertyUnit != null">
+				#{propertyUnit,jdbcType=VARCHAR},
+			</if>
+			<if test="textMinLength != null">
+				#{textMinLength,jdbcType=TINYINT},
+			</if>
+			<if test="textMaxLength != null">
+				#{textMaxLength,jdbcType=SMALLINT},
+			</if>
+			<if test="textRow != null">
+				#{textRow,jdbcType=TINYINT},
+			</if>
+			<if test="inputCol != null">
+				#{inputCol,jdbcType=TINYINT},
+			</if>
+			<if test="ifForbidden != null">
+				#{ifForbidden,jdbcType=CHAR},
+			</if>
+			<if test="isNecessary != null">
+				#{isNecessary,jdbcType=CHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=CHAR},
+			</if>
+			<if test="sequenceNum != null">
+				#{sequenceNum,jdbcType=TINYINT},
+			</if>
+			<if test="pointOut != null">
+				#{pointOut,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<update id="updateByPrimaryKeySelective" parameterType="com.crm.dto.basic.PropertyConfigDto">
+		update property_config
+		<set>
+			<if test="permissionType != null">
+				permission_type = #{permissionType,jdbcType=VARCHAR},
+			</if>
+			<if test="permissionId != null">
+				permission_id = #{permissionId,jdbcType=VARCHAR},
+			</if>
+			<if test="propertyName != null">
+				property_name = #{propertyName,jdbcType=VARCHAR},
+			</if>
+			<if test="propertyDesc != null">
+				property_desc = #{propertyDesc,jdbcType=VARCHAR},
+			</if>
+			<if test="propertyType != null">
+				property_type = #{propertyType,jdbcType=VARCHAR},
+			</if>
+			<if test="propertyUnit != null">
+				property_unit = #{propertyUnit,jdbcType=VARCHAR},
+			</if>
+			<if test="textMinLength != null">
+				text_min_length = #{textMinLength,jdbcType=TINYINT},
+			</if>
+			<if test="textMaxLength != null">
+				text_max_length = #{textMaxLength,jdbcType=SMALLINT},
+			</if>
+			<if test="textRow != null">
+				text_row = #{textRow,jdbcType=TINYINT},
+			</if>
+			<if test="inputCol != null">
+				input_col = #{inputCol,jdbcType=TINYINT},
+			</if>
+			<if test="ifForbidden != null">
+				if_forbidden = #{ifForbidden,jdbcType=CHAR},
+			</if>
+			<if test="isNecessary != null">
+				is_necessary = #{isNecessary,jdbcType=CHAR},
+			</if>
+			<if test="status != null">
+				status = #{status,jdbcType=CHAR},
+			</if>
+			<if test="sequenceNum != null">
+				sequence_num = #{sequenceNum,jdbcType=TINYINT},
+			</if>
+			<if test="pointOut != null">
+				point_out = #{pointOut,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where property_config_seq_id = #{propertyConfigSeqId,jdbcType=INTEGER}
+	</update>
+	<update id="updateByPrimaryKey" parameterType="com.crm.dto.basic.PropertyConfigDto">
+		update
+		property_config
+		set
+		permission_type =
+		#{permissionType,jdbcType=VARCHAR},
+		permission_id =
+		#{permissionId,jdbcType=VARCHAR},
+		property_name =
+		#{propertyName,jdbcType=VARCHAR},
+		property_desc =
+		#{propertyDesc,jdbcType=VARCHAR},
+		property_type =
+		#{propertyType,jdbcType=VARCHAR},
+		property_unit =
+		#{propertyUnit,jdbcType=VARCHAR},
+		text_min_length =
+		#{textMinLength,jdbcType=TINYINT},
+		text_max_length =
+		#{textMaxLength,jdbcType=SMALLINT},
+		text_row =
+		#{textRow,jdbcType=TINYINT},
+		input_col = #{inputCol,jdbcType=TINYINT},
+		if_forbidden = #{ifForbidden,jdbcType=CHAR},
+		is_necessary =
+		#{isNecessary,jdbcType=CHAR},
+		status = #{status,jdbcType=CHAR},
+		sequence_num = #{sequenceNum,jdbcType=TINYINT},
+		point_out =
+		#{pointOut,jdbcType=VARCHAR}
+		where property_config_seq_id =
+		#{propertyConfigSeqId,jdbcType=INTEGER}
+	</update>
+</mapper>

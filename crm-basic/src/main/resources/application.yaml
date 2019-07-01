@@ -1,0 +1,64 @@
+snowFlake:
+  workInfo:
+    datacenterId: 3
+    machineId: 3
+eureka:
+  client:
+#    healthcheck:
+#      enabled: true #这个属性只能放在application.yml文件中，放在其他.yml中会出问题
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+spring:
+  session:
+    store-type: redis
+  application:
+    name: crm-basic
+  http:
+    encoding:
+      force: true
+      enabled: true
+      charset: UTF-8
+    multipart:
+      max-file-size: 1Mb      # Max file size，默认1M
+      max-request-size: 2Mb   # Max request size，默认10M
+  profiles:
+    active:
+#    - dev
+#    - redis-dev
+    - test
+    - redis-test
+#    - pro
+#    - redis-pro
+mybatis:
+  type-aliases-package: com.crm.basic.model
+  mapperLocations: classpath*:mybatis/mapper/**/*Mapper.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+mapper:
+ not-empty: false
+ identity: POSTGRESQL
+pagehelper:
+  helperDialect: postgresql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+besedir: basic
+hystrix:
+  command: 
+    default: 
+      execution: 
+        timeout: 
+          enable: true
+        isolation: 
+          thread: 
+            timeoutInMilliseconds: 30000
+
+feign.hystrix.enabled: true 
+ribbon:
+  ConnectTimeout: 3000
+  ReadTimeout: 30000
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 2
+  OkToRetryOnAllOperations: false

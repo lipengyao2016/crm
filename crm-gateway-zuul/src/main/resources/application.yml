@@ -1,0 +1,49 @@
+spring:
+  session:
+    store-type: redis
+  application:
+    name: crm-gateway-zuul
+  http:
+    multipart:
+      max-file-size: 2000Mb      # Max file size，默认1M
+      max-request-size: 2500Mb   # Max request size，默认10M
+    encoding:
+      force: true
+      enabled: true
+      charset: UTF-8
+  profiles:
+    active:
+#    - dev
+#    - redis-dev
+    - test
+    - redis-test
+#    - pro
+#    - redis-pro
+hystrix: 
+  command: 
+    default: 
+      execution: 
+        timeout: 
+          enable: true
+        isolation: 
+          thread: 
+            timeoutInMilliseconds: 40000
+ribbon:
+  ConnectTimeout: 3000
+  ReadTimeout: 40000
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 2
+  OkToRetryOnAllOperations: false
+zuul:
+  routes:
+    attachment:
+      path: /zuul/crm-attachment/**
+      serviceId: crm-attachment
+    excel: 
+      path: /zuul/system-administration/excel/**
+      serviceId: system-administration/excel
+  retryable: true
+  
+server:
+  tomcat:
+    uri-encoding: UTF-8

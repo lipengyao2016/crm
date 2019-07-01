@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.crm.administration.mapper.UserMapper" >
+  <resultMap id="BaseResultMap" type="com.crm.administration.model.User" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="user_login_id" property="userLoginId" jdbcType="VARCHAR" />
+    <result column="position_seq_id" property="positionSeqId" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="current_password" property="currentPassword" jdbcType="VARCHAR" />
+    <result column="gender" property="gender" jdbcType="CHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="weixin" property="weixin" jdbcType="VARCHAR" />
+    <result column="attachment_key" property="attachmentKey" jdbcType="VARCHAR" />
+    <result column="last_login_time" property="lastLoginTime" jdbcType="TIMESTAMP" />
+    <result column="last_login_ip" property="lastLoginIp" jdbcType="VARCHAR" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="created_by" property="createdBy" jdbcType="VARCHAR" />
+    <result column="created_dt" property="createdDt" jdbcType="TIMESTAMP" />
+    <result column="updated_by" property="updatedBy" jdbcType="VARCHAR" />
+    <result column="updated_dt" property="updatedDt" jdbcType="TIMESTAMP" />
+    <result column="last_login_channel" property="lastLoginChannel" jdbcType="VARCHAR" />
+    <result column="department_id" property="departmentId" jdbcType="VARCHAR" />
+    <result column="entry_date" property="entryDate" jdbcType="TIMESTAMP" />
+    <result column="agency_id" property="agencyId" jdbcType="BIGINT" />
+  </resultMap>
+  <resultMap id="UserVoResultMap" type="com.crm.vo.UserVo" extends="BaseResultMap" />
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    id, user_login_id, position_seq_id, name, current_password, gender, phone, email, 
+    weixin, attachment_key, last_login_time, last_login_ip, status, created_by, created_dt, 
+    updated_by, updated_dt, last_login_channel, department_id, entry_date
+  </sql>
+
+  <select id="findUserInfoById" resultType="com.crm.vo.UserLoginInfoVo">
+    select id,name,phone,current_password as currentPassword,user_login_id as userLoginId,
+    status,attachment_key as imageString,agency_id as agencyId
+    from "user"
+    where user_login_id=#{userLoginId}
+  </select>
+  <update id="updateUserPwd" parameterType="com.crm.administration.model.login.AccountVo">
+    update "user" set current_password = #{newPwd}
+  </update>
+  <update id="updateUserLoginInfo" parameterType="com.crm.administration.model.login.AccountVo">
+    update "user" set last_login_time = #{lastLoginTime},last_login_ip=#{lastLoginIP},last_login_channel=#{lastLoginChannel}
+     where user_login_id=#{userLoginId}
+  </update>
+  <select id="list" resultMap="UserVoResultMap" parameterType="com.crm.administration.model.pojo.UserSearchCondition" >
+    select
+    <include refid="Base_Column_List" />
+    from "user"
+    <where>
+      <if test="userLoginId != null" >
+        and user_login_id = #{userLoginId,jdbcType=VARCHAR}
+      </if>
+      <if test="keyword != null" >
+       and (phone like '%${keyword}%' or user_login_id like '%${keyword}%' or name like '%${keyword}%')
+      </if>
+      <if test="positionSeqId != null" >
+        and position_seq_id = #{positionSeqId,jdbcType=BIGINT}
+      </if>
+      <if test="gender != null" >
+        and gender = #{gender,jdbcType=CHAR}
+      </if>
+      <if test="status != null" >
+        and status = #{status,jdbcType=CHAR}
+      </if>
+      <if test="currentPasswrod != null" >
+        and current_password = #{currentPasswrod,jdbcType=CHAR}
+      </if>
+
+      <choose>
+        <when test="startTime != null and endTime != null">
+          and created_dt between #{startTime,jdbcType=TIMESTAMP} and #{endTime,jdbcType=TIMESTAMP}
+        </when>
+        <otherwise>
+          <if test="startTime != null and endTime != null" >
+            <if test="startTime != null" >
+              and created_dt <![CDATA[>]]> #{startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endTime != null" >
+              and created_dt <![CDATA[<]]> #{endTime,jdbcType=TIMESTAMP}
+            </if>
+          </if>
+        </otherwise>
+      </choose>
+
+      <if test="departmentId != null" >
+        and department_id = #{departmentId,jdbcType=VARCHAR}
+      </if>
+    </where>
+  </select>
+
+  <insert id="batchInsert" parameterType="java.util.List">
+    insert into "user" (
+    id, user_login_id, position_seq_id,
+    "name", current_password, gender,
+    phone, email, weixin,
+    status, created_by, created_dt,
+    department_id, entry_date,agency_id
+    ) values
+    <foreach collection="recordList" item="item" index="index" separator=",">
+      (
+      #{id,jdbcType=BIGINT},
+      #{userLoginId,jdbcType=VARCHAR},
+      #{positionSeqId,jdbcType=BIGINT},
+      #{name,jdbcType=VARCHAR},
+      #{currentPassword,jdbcType=VARCHAR},
+      #{gender,jdbcType=CHAR},
+      #{phone,jdbcType=VARCHAR},
+      #{email,jdbcType=VARCHAR},
+      #{weixin,jdbcType=VARCHAR},
+      #{status,jdbcType=CHAR},
+      #{createdBy,jdbcType=VARCHAR},
+      #{createdDt,jdbcType=TIMESTAMP},
+      #{departmentId,jdbcType=VARCHAR},
+      #{entryDate,jdbcType=TIMESTAMP},
+      #{agencyId,jdbcType=BIGINT}
+      )
+    </foreach>
+  </insert>
+
+
+
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.crm.administration.model.UserCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from "user"
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from "user"
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from "user"
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.crm.administration.model.UserCriteria" >
+    delete from "user"
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.crm.administration.model.User" >
+    insert into "user" (id, user_login_id, position_seq_id,
+      name, current_password, gender, 
+      phone, email, weixin, 
+      attachment_key, last_login_time, last_login_ip, 
+      status, created_by, created_dt, 
+      updated_by, updated_dt, last_login_channel, 
+      department_id, entry_date,agency_id)
+    values (#{id,jdbcType=BIGINT}, #{userLoginId,jdbcType=VARCHAR}, #{positionSeqId,jdbcType=BIGINT}, 
+      #{name,jdbcType=VARCHAR}, #{currentPassword,jdbcType=VARCHAR}, #{gender,jdbcType=CHAR}, 
+      #{phone,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{weixin,jdbcType=VARCHAR}, 
+      #{attachmentKey,jdbcType=VARCHAR}, #{lastLoginTime,jdbcType=TIMESTAMP}, #{lastLoginIp,jdbcType=VARCHAR}, 
+      #{status,jdbcType=CHAR}, #{createdBy,jdbcType=VARCHAR}, #{createdDt,jdbcType=TIMESTAMP}, 
+      #{updatedBy,jdbcType=VARCHAR}, #{updatedDt,jdbcType=TIMESTAMP}, #{lastLoginChannel,jdbcType=VARCHAR}, 
+      #{departmentId,jdbcType=VARCHAR}, #{entryDate,jdbcType=TIMESTAMP},
+      #{agencyId,jdbcType=BIGINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.crm.administration.model.User" >
+    insert into "user"
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="userLoginId != null" >
+        user_login_id,
+      </if>
+      <if test="positionSeqId != null" >
+        position_seq_id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="currentPassword != null" >
+        current_password,
+      </if>
+      <if test="gender != null" >
+        gender,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="email != null" >
+        email,
+      </if>
+      <if test="weixin != null" >
+        weixin,
+      </if>
+      <if test="attachmentKey != null" >
+        attachment_key,
+      </if>
+      <if test="lastLoginTime != null" >
+        last_login_time,
+      </if>
+      <if test="lastLoginIp != null" >
+        last_login_ip,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createdBy != null" >
+        created_by,
+      </if>
+      <if test="createdDt != null" >
+        created_dt,
+      </if>
+      <if test="updatedBy != null" >
+        updated_by,
+      </if>
+      <if test="updatedDt != null" >
+        updated_dt,
+      </if>
+      <if test="lastLoginChannel != null" >
+        last_login_channel,
+      </if>
+      <if test="departmentId != null" >
+        department_id,
+      </if>
+      <if test="entryDate != null" >
+        entry_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="userLoginId != null" >
+        #{userLoginId,jdbcType=VARCHAR},
+      </if>
+      <if test="positionSeqId != null" >
+        #{positionSeqId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="currentPassword != null" >
+        #{currentPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null" >
+        #{gender,jdbcType=CHAR},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="weixin != null" >
+        #{weixin,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentKey != null" >
+        #{attachmentKey,jdbcType=VARCHAR},
+      </if>
+      <if test="lastLoginTime != null" >
+        #{lastLoginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastLoginIp != null" >
+        #{lastLoginIp,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="createdBy != null" >
+        #{createdBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createdDt != null" >
+        #{createdDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedBy != null" >
+        #{updatedBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedDt != null" >
+        #{updatedDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastLoginChannel != null" >
+        #{lastLoginChannel,jdbcType=VARCHAR},
+      </if>
+      <if test="departmentId != null" >
+        #{departmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="entryDate != null" >
+        #{entryDate,jdbcType=TIMESTAMP},
+      </if>
+      #{agencyId,jdbcType=BIGINT}
+
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.crm.administration.model.UserCriteria" resultType="java.lang.Integer" >
+    select count(*) from "user"
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update "user"
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.userLoginId != null" >
+        user_login_id = #{record.userLoginId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.positionSeqId != null" >
+        position_seq_id = #{record.positionSeqId,jdbcType=BIGINT},
+      </if>
+      <if test="record.name != null" >
+        name = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.currentPassword != null" >
+        current_password = #{record.currentPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="record.gender != null" >
+        gender = #{record.gender,jdbcType=CHAR},
+      </if>
+      <if test="record.phone != null" >
+        phone = #{record.phone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.email != null" >
+        email = #{record.email,jdbcType=VARCHAR},
+      </if>
+      <if test="record.weixin != null" >
+        weixin = #{record.weixin,jdbcType=VARCHAR},
+      </if>
+      <if test="record.attachmentKey != null" >
+        attachment_key = #{record.attachmentKey,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lastLoginTime != null" >
+        last_login_time = #{record.lastLoginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.lastLoginIp != null" >
+        last_login_ip = #{record.lastLoginIp,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=CHAR},
+      </if>
+      <if test="record.createdBy != null" >
+        created_by = #{record.createdBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createdDt != null" >
+        created_dt = #{record.createdDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updatedBy != null" >
+        updated_by = #{record.updatedBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updatedDt != null" >
+        updated_dt = #{record.updatedDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.lastLoginChannel != null" >
+        last_login_channel = #{record.lastLoginChannel,jdbcType=VARCHAR},
+      </if>
+      <if test="record.departmentId != null" >
+        department_id = #{record.departmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.entryDate != null" >
+        entry_date = #{record.entryDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update "user"
+    set id = #{record.id,jdbcType=BIGINT},
+      user_login_id = #{record.userLoginId,jdbcType=VARCHAR},
+      position_seq_id = #{record.positionSeqId,jdbcType=BIGINT},
+      name = #{record.name,jdbcType=VARCHAR},
+      current_password = #{record.currentPassword,jdbcType=VARCHAR},
+      gender = #{record.gender,jdbcType=CHAR},
+      phone = #{record.phone,jdbcType=VARCHAR},
+      email = #{record.email,jdbcType=VARCHAR},
+      weixin = #{record.weixin,jdbcType=VARCHAR},
+      attachment_key = #{record.attachmentKey,jdbcType=VARCHAR},
+      last_login_time = #{record.lastLoginTime,jdbcType=TIMESTAMP},
+      last_login_ip = #{record.lastLoginIp,jdbcType=VARCHAR},
+      status = #{record.status,jdbcType=CHAR},
+      created_by = #{record.createdBy,jdbcType=VARCHAR},
+      created_dt = #{record.createdDt,jdbcType=TIMESTAMP},
+      updated_by = #{record.updatedBy,jdbcType=VARCHAR},
+      updated_dt = #{record.updatedDt,jdbcType=TIMESTAMP},
+      last_login_channel = #{record.lastLoginChannel,jdbcType=VARCHAR},
+      department_id = #{record.departmentId,jdbcType=VARCHAR},
+      entry_date = #{record.entryDate,jdbcType=TIMESTAMP}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.crm.administration.model.User" >
+    update "user"
+    <set >
+      <if test="userLoginId != null" >
+        user_login_id = #{userLoginId,jdbcType=VARCHAR},
+      </if>
+      <if test="positionSeqId != null" >
+        position_seq_id = #{positionSeqId,jdbcType=BIGINT},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="currentPassword != null" >
+        current_password = #{currentPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null" >
+        gender = #{gender,jdbcType=CHAR},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="weixin != null" >
+        weixin = #{weixin,jdbcType=VARCHAR},
+      </if>
+      <if test="attachmentKey != null" >
+        attachment_key = #{attachmentKey,jdbcType=VARCHAR},
+      </if>
+      <if test="lastLoginTime != null" >
+        last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastLoginIp != null" >
+        last_login_ip = #{lastLoginIp,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="createdBy != null" >
+        created_by = #{createdBy,jdbcType=VARCHAR},
+      </if>
+      <if test="createdDt != null" >
+        created_dt = #{createdDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedBy != null" >
+        updated_by = #{updatedBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedDt != null" >
+        updated_dt = #{updatedDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastLoginChannel != null" >
+        last_login_channel = #{lastLoginChannel,jdbcType=VARCHAR},
+      </if>
+      <if test="departmentId != null" >
+        department_id = #{departmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="entryDate != null" >
+        entry_date = #{entryDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.crm.administration.model.User" >
+    update "user"
+    set user_login_id = #{userLoginId,jdbcType=VARCHAR},
+      position_seq_id = #{positionSeqId,jdbcType=BIGINT},
+      name = #{name,jdbcType=VARCHAR},
+      current_password = #{currentPassword,jdbcType=VARCHAR},
+      gender = #{gender,jdbcType=CHAR},
+      phone = #{phone,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      weixin = #{weixin,jdbcType=VARCHAR},
+      attachment_key = #{attachmentKey,jdbcType=VARCHAR},
+      last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP},
+      last_login_ip = #{lastLoginIp,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR},
+      created_by = #{createdBy,jdbcType=VARCHAR},
+      created_dt = #{createdDt,jdbcType=TIMESTAMP},
+      updated_by = #{updatedBy,jdbcType=VARCHAR},
+      updated_dt = #{updatedDt,jdbcType=TIMESTAMP},
+      last_login_channel = #{lastLoginChannel,jdbcType=VARCHAR},
+      department_id = #{departmentId,jdbcType=VARCHAR},
+      entry_date = #{entryDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

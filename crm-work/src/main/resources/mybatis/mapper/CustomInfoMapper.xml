@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.crm.work.mapper.CustomInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.crm.work.model.vo.CustomInfoVo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="customer_name" property="customerName" jdbcType="VARCHAR" />
+    <result column="gender" property="gender" jdbcType="CHAR" />
+    <result column="age" property="age" jdbcType="SMALLINT" />
+    <result column="source" property="source" jdbcType="SMALLINT" />
+    <result column="assortment" property="assortment" jdbcType="CHAR" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="reported_by" property="reportedBy" jdbcType="BIGINT" />
+    <result column="report_dt" property="reportDt" jdbcType="TIMESTAMP" />
+    <result column="owner" property="owner" jdbcType="BIGINT" />
+    <result column="position" property="position" jdbcType="SMALLINT" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="weixin" property="weixin" jdbcType="VARCHAR" />
+    <result column="intention" property="intention" jdbcType="SMALLINT" />
+    <result column="pid" property="pid" jdbcType="INTEGER" />
+    <result column="cid" property="cid" jdbcType="INTEGER" />
+    <result column="aid" property="aid" jdbcType="INTEGER" />
+    <result column="personnel_scale" property="personnelScale" jdbcType="SMALLINT" />
+    <result column="created_dt" property="createdDt" jdbcType="TIMESTAMP" />
+    <result column="created_by" property="createdBy" jdbcType="VARCHAR" />
+    <result column="updated_dt" property="updatedDt" jdbcType="TIMESTAMP" />
+    <result column="updated_by" property="updatedBy" jdbcType="VARCHAR" />
+    <result column="customer_stage" property="customerStage" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    ${alias}.id, ${alias}.customer_name, ${alias}.gender, ${alias}.age, ${alias}.source, ${alias}.assortment, ${alias}.status, ${alias}.remark, ${alias}.reported_by, ${alias}.
+    report_dt, ${alias}.owner, ${alias}.position, ${alias}.phone, ${alias}.weixin, ${alias}.intention, ${alias}.pid, ${alias}.cid, ${alias}.aid, ${alias}.personnel_scale, ${alias}.
+    created_dt, ${alias}.created_by, ${alias}.updated_dt, ${alias}.updated_by
+  </sql>
+
+  <select id="list" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List">
+      <property name="alias" value="t1"/>
+    </include>
+    ,t2.customer_stage
+    from custom_info as t1
+    left outer join custom_follow as t2 on t1.id=t2.cid
+    <where>
+      <if test="keyword != null and keyword != '' ">
+        and (customer_name like '%${keyword}%' or weixin like '%${keyword}%' or phone like '%${keyword}%')
+      </if>
+      <if test="assortment != null and assortment != '' ">
+        and assortment =#{assortment}
+      </if>
+    </where>
+  </select>
+
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.crm.work.model.CustomInfoCriteria" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List">
+      <property name="alias" value="t1"/>
+    </include>
+    from custom_info as t1
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List">
+      <property name="alias" value="t1"/>
+    </include>
+    from custom_info as t1
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from custom_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.crm.work.model.CustomInfoCriteria" >
+    delete from custom_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.crm.work.model.CustomInfo" >
+    insert into custom_info (id, customer_name, gender, 
+      age, source, assortment, 
+      status, remark, reported_by, 
+      report_dt, owner, position, 
+      phone, weixin, intention, 
+      pid, cid, aid, personnel_scale, 
+      created_dt, created_by, updated_dt, 
+      updated_by)
+    values (#{id,jdbcType=BIGINT}, #{customerName,jdbcType=VARCHAR}, #{gender,jdbcType=CHAR}, 
+      #{age,jdbcType=SMALLINT}, #{source,jdbcType=SMALLINT}, #{assortment,jdbcType=CHAR}, 
+      #{status,jdbcType=CHAR}, #{remark,jdbcType=VARCHAR}, #{reportedBy,jdbcType=BIGINT}, 
+      #{reportDt,jdbcType=TIMESTAMP}, #{owner,jdbcType=BIGINT}, #{position,jdbcType=SMALLINT}, 
+      #{phone,jdbcType=VARCHAR}, #{weixin,jdbcType=VARCHAR}, #{intention,jdbcType=SMALLINT}, 
+      #{pid,jdbcType=INTEGER}, #{cid,jdbcType=INTEGER}, #{aid,jdbcType=INTEGER}, #{personnelScale,jdbcType=SMALLINT}, 
+      #{createdDt,jdbcType=TIMESTAMP}, #{createdBy,jdbcType=VARCHAR}, #{updatedDt,jdbcType=TIMESTAMP}, 
+      #{updatedBy,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.crm.work.model.CustomInfo" >
+    insert into custom_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="customerName != null" >
+        customer_name,
+      </if>
+      <if test="gender != null" >
+        gender,
+      </if>
+      <if test="age != null" >
+        age,
+      </if>
+      <if test="source != null" >
+        source,
+      </if>
+      <if test="assortment != null" >
+        assortment,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="reportedBy != null" >
+        reported_by,
+      </if>
+      <if test="reportDt != null" >
+        report_dt,
+      </if>
+      <if test="owner != null" >
+        owner,
+      </if>
+      <if test="position != null" >
+        position,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="weixin != null" >
+        weixin,
+      </if>
+      <if test="intention != null" >
+        intention,
+      </if>
+      <if test="pid != null" >
+        pid,
+      </if>
+      <if test="cid != null" >
+        cid,
+      </if>
+      <if test="aid != null" >
+        aid,
+      </if>
+      <if test="personnelScale != null" >
+        personnel_scale,
+      </if>
+      <if test="createdDt != null" >
+        created_dt,
+      </if>
+      <if test="createdBy != null" >
+        created_by,
+      </if>
+      <if test="updatedDt != null" >
+        updated_dt,
+      </if>
+      <if test="updatedBy != null" >
+        updated_by,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="customerName != null" >
+        #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null" >
+        #{gender,jdbcType=CHAR},
+      </if>
+      <if test="age != null" >
+        #{age,jdbcType=SMALLINT},
+      </if>
+      <if test="source != null" >
+        #{source,jdbcType=SMALLINT},
+      </if>
+      <if test="assortment != null" >
+        #{assortment,jdbcType=CHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="reportedBy != null" >
+        #{reportedBy,jdbcType=BIGINT},
+      </if>
+      <if test="reportDt != null" >
+        #{reportDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="owner != null" >
+        #{owner,jdbcType=BIGINT},
+      </if>
+      <if test="position != null" >
+        #{position,jdbcType=SMALLINT},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="weixin != null" >
+        #{weixin,jdbcType=VARCHAR},
+      </if>
+      <if test="intention != null" >
+        #{intention,jdbcType=SMALLINT},
+      </if>
+      <if test="pid != null" >
+        #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="cid != null" >
+        #{cid,jdbcType=INTEGER},
+      </if>
+      <if test="aid != null" >
+        #{aid,jdbcType=INTEGER},
+      </if>
+      <if test="personnelScale != null" >
+        #{personnelScale,jdbcType=SMALLINT},
+      </if>
+      <if test="createdDt != null" >
+        #{createdDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createdBy != null" >
+        #{createdBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedDt != null" >
+        #{updatedDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedBy != null" >
+        #{updatedBy,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.crm.work.model.CustomInfoCriteria" resultType="java.lang.Integer" >
+    select count(*) from custom_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update custom_info
+    <set >
+      <if test="record.id != null" >
+        id = #{record.id,jdbcType=BIGINT},
+      </if>
+      <if test="record.customerName != null" >
+        customer_name = #{record.customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.gender != null" >
+        gender = #{record.gender,jdbcType=CHAR},
+      </if>
+      <if test="record.age != null" >
+        age = #{record.age,jdbcType=SMALLINT},
+      </if>
+      <if test="record.source != null" >
+        source = #{record.source,jdbcType=SMALLINT},
+      </if>
+      <if test="record.assortment != null" >
+        assortment = #{record.assortment,jdbcType=CHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=CHAR},
+      </if>
+      <if test="record.remark != null" >
+        remark = #{record.remark,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reportedBy != null" >
+        reported_by = #{record.reportedBy,jdbcType=BIGINT},
+      </if>
+      <if test="record.reportDt != null" >
+        report_dt = #{record.reportDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.owner != null" >
+        owner = #{record.owner,jdbcType=BIGINT},
+      </if>
+      <if test="record.position != null" >
+        position = #{record.position,jdbcType=SMALLINT},
+      </if>
+      <if test="record.phone != null" >
+        phone = #{record.phone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.weixin != null" >
+        weixin = #{record.weixin,jdbcType=VARCHAR},
+      </if>
+      <if test="record.intention != null" >
+        intention = #{record.intention,jdbcType=SMALLINT},
+      </if>
+      <if test="record.pid != null" >
+        pid = #{record.pid,jdbcType=INTEGER},
+      </if>
+      <if test="record.cid != null" >
+        cid = #{record.cid,jdbcType=INTEGER},
+      </if>
+      <if test="record.aid != null" >
+        aid = #{record.aid,jdbcType=INTEGER},
+      </if>
+      <if test="record.personnelScale != null" >
+        personnel_scale = #{record.personnelScale,jdbcType=SMALLINT},
+      </if>
+      <if test="record.createdDt != null" >
+        created_dt = #{record.createdDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.createdBy != null" >
+        created_by = #{record.createdBy,jdbcType=VARCHAR},
+      </if>
+      <if test="record.updatedDt != null" >
+        updated_dt = #{record.updatedDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.updatedBy != null" >
+        updated_by = #{record.updatedBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update custom_info
+    set id = #{record.id,jdbcType=BIGINT},
+    customer_name = #{record.customerName,jdbcType=VARCHAR},
+    gender = #{record.gender,jdbcType=CHAR},
+    age = #{record.age,jdbcType=SMALLINT},
+    source = #{record.source,jdbcType=SMALLINT},
+    assortment = #{record.assortment,jdbcType=CHAR},
+    status = #{record.status,jdbcType=CHAR},
+    remark = #{record.remark,jdbcType=VARCHAR},
+    reported_by = #{record.reportedBy,jdbcType=BIGINT},
+    report_dt = #{record.reportDt,jdbcType=TIMESTAMP},
+    owner = #{record.owner,jdbcType=BIGINT},
+    position = #{record.position,jdbcType=SMALLINT},
+    phone = #{record.phone,jdbcType=VARCHAR},
+    weixin = #{record.weixin,jdbcType=VARCHAR},
+    intention = #{record.intention,jdbcType=SMALLINT},
+    pid = #{record.pid,jdbcType=INTEGER},
+    cid = #{record.cid,jdbcType=INTEGER},
+    aid = #{record.aid,jdbcType=INTEGER},
+    personnel_scale = #{record.personnelScale,jdbcType=SMALLINT},
+    created_dt = #{record.createdDt,jdbcType=TIMESTAMP},
+    created_by = #{record.createdBy,jdbcType=VARCHAR},
+    updated_dt = #{record.updatedDt,jdbcType=TIMESTAMP},
+    updated_by = #{record.updatedBy,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.crm.work.model.CustomInfo" >
+    update custom_info
+    <set >
+      <if test="customerName != null" >
+        customer_name = #{customerName,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null" >
+        gender = #{gender,jdbcType=CHAR},
+      </if>
+      <if test="age != null" >
+        age = #{age,jdbcType=SMALLINT},
+      </if>
+      <if test="source != null" >
+        source = #{source,jdbcType=SMALLINT},
+      </if>
+      <if test="assortment != null" >
+        assortment = #{assortment,jdbcType=CHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="reportedBy != null" >
+        reported_by = #{reportedBy,jdbcType=BIGINT},
+      </if>
+      <if test="reportDt != null" >
+        report_dt = #{reportDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="owner != null" >
+        owner = #{owner,jdbcType=BIGINT},
+      </if>
+      <if test="position != null" >
+        position = #{position,jdbcType=SMALLINT},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="weixin != null" >
+        weixin = #{weixin,jdbcType=VARCHAR},
+      </if>
+      <if test="intention != null" >
+        intention = #{intention,jdbcType=SMALLINT},
+      </if>
+      <if test="pid != null" >
+        pid = #{pid,jdbcType=INTEGER},
+      </if>
+      <if test="cid != null" >
+        cid = #{cid,jdbcType=INTEGER},
+      </if>
+      <if test="aid != null" >
+        aid = #{aid,jdbcType=INTEGER},
+      </if>
+      <if test="personnelScale != null" >
+        personnel_scale = #{personnelScale,jdbcType=SMALLINT},
+      </if>
+      <if test="createdDt != null" >
+        created_dt = #{createdDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createdBy != null" >
+        created_by = #{createdBy,jdbcType=VARCHAR},
+      </if>
+      <if test="updatedDt != null" >
+        updated_dt = #{updatedDt,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updatedBy != null" >
+        updated_by = #{updatedBy,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.crm.work.model.CustomInfo" >
+    update custom_info
+    set customer_name = #{customerName,jdbcType=VARCHAR},
+      gender = #{gender,jdbcType=CHAR},
+      age = #{age,jdbcType=SMALLINT},
+      source = #{source,jdbcType=SMALLINT},
+      assortment = #{assortment,jdbcType=CHAR},
+      status = #{status,jdbcType=CHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      reported_by = #{reportedBy,jdbcType=BIGINT},
+      report_dt = #{reportDt,jdbcType=TIMESTAMP},
+      owner = #{owner,jdbcType=BIGINT},
+      position = #{position,jdbcType=SMALLINT},
+      phone = #{phone,jdbcType=VARCHAR},
+      weixin = #{weixin,jdbcType=VARCHAR},
+      intention = #{intention,jdbcType=SMALLINT},
+      pid = #{pid,jdbcType=INTEGER},
+      cid = #{cid,jdbcType=INTEGER},
+      aid = #{aid,jdbcType=INTEGER},
+      personnel_scale = #{personnelScale,jdbcType=SMALLINT},
+      created_dt = #{createdDt,jdbcType=TIMESTAMP},
+      created_by = #{createdBy,jdbcType=VARCHAR},
+      updated_dt = #{updatedDt,jdbcType=TIMESTAMP},
+      updated_by = #{updatedBy,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

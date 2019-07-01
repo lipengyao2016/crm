@@ -1,0 +1,49 @@
+snowFlake:
+  workInfo:
+    datacenterId: 2
+    machineId: 2
+spring:
+  session:
+    store-type: redis
+  application:
+    name: crm-assistant
+  profiles:
+    active:
+    - dev
+    - redis-dev
+#    - test
+#    - redis-test
+#    - pro
+#    - redis-pro
+mybatis:
+  type-aliases-package: com.crm.assistant.model
+  mapperLocations: classpath*:mybatis/mapper/**/*Mapper.xml
+  configuration:
+      log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+mapper:
+  not-empty: false
+  identity: MYSQL
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+hystrix:
+  command:
+    default:
+      execution:
+        timeout:
+          enable: true
+        isolation:
+          thread:
+            timeoutInMilliseconds: 30000
+feign.hystrix.enabled: true
+ribbon:
+  ConnectTimeout: 3000
+  ReadTimeout: 30000
+  MaxAutoRetries: 1
+  MaxAutoRetriesNextServer: 2
+  OkToRetryOnAllOperations: false
+
+assistant: 
+  filepath: /tmp/assistant/file

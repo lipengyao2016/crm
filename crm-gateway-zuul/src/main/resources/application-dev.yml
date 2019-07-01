@@ -1,0 +1,18 @@
+server:
+  port: 9090
+  session:
+    timeout: 1800
+logging:
+  level:
+    tk.mybatis: TRACE
+    root: info
+    org.springframework.web: DEBUG
+  file: E:\log\log.log
+eureka:
+  client:
+    healthcheck:
+      enabled: true
+    serviceUrl:
+      defaultZone: http://boying_crm_eureka:by_crm_123@192.168.1.200:8761/eureka
+  instance:
+    prefer-ip-address: true
